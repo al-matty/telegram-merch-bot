@@ -1,7 +1,10 @@
 # -*- coding: UTF8 -*-
-# Credit for framework goes to @
+# bot framework by @magnito
+
 import requests
 import datetime
+import imageio
+from imageManipulation import updatePic
 
 
 
@@ -25,6 +28,13 @@ class BotHandler:
         resp = requests.post(self.api_url + method, params)
         return resp
 
+    # def send_image(self, chat_id, imageFile):
+    #         command = 'curl -s -X POST https://api.telegram.org/bot' + str(token) + '/sendPhoto -F chat_id=' + str(chat_id) + " -F photo=@" + imageFile
+    #         subprocess.call(command.split(' '))
+    #         return
+
+
+
     def get_first_update(self):
         get_result = self.get_updates()
 
@@ -37,16 +47,19 @@ class BotHandler:
 
 
 token = '1515330813:AAFymu9nZtJ9vhPovYfmolQ-SyCjna-5D_c' #Token of your bot
-magnito_bot = BotHandler(token) #Your bot's name
-
-
+al_bot = BotHandler(token) #Your bot's name
+#picPath = './testPic.png'
+picUrl = 'https://cdn.publish0x.com/prod/fs/cachedimages/4085357584-80ce03db23204e1f181d30d21c8e80750d0d67f88307f08c77f553fba78b2f4f.png'
+picData = imageio.imread(picUrl)
 
 def main():
     new_offset = 0
-    print('hi, now launching... Crrrck... brzzzt...')
+    print('Bot launched.')
+
+
 
     while True:
-        all_updates=magnito_bot.get_updates(new_offset)
+        all_updates=al_bot.get_updates(new_offset)
 
         if len(all_updates) > 0:
             for current_update in all_updates:
@@ -70,11 +83,21 @@ def main():
               # Some chat functions
 
                 if first_chat_text == 'Hi':
-                    magnito_bot.send_message(first_chat_id, 'Morning ' + first_chat_name)
+                    al_bot.send_message(first_chat_id, 'Morning ' + first_chat_name)
+                    new_offset = first_update_id + 1
+
+                elif first_chat_text == '/merch':
+#                    upToDateMerch = updatePic(picPath)
+
+#                    al_bot.send_image(first_chat_id, picData)
+                    print(picData)
+                    al_bot.send_message(first_chat_id, 'Merch' + first_chat_name)
                     new_offset = first_update_id + 1
                 else:
-                    magnito_bot.send_message(first_chat_id, 'How are you doing? Bzzzz...'+first_chat_name)
                     new_offset = first_update_id + 1
+
+#                    al_bot.send_message(first_chat_id, 'How are you doing? Bzzzz...'+first_chat_name)
+
 
 
 
@@ -86,8 +109,13 @@ def main():
                 # n = libro.count(palabra)
                 # f.close()
                 #
-                # magnito_bot.send_message(first_chat_id, first_chat_name+ ', en El Quijote la palabra '+palabra+" aparece "+str(n)+' veces.')
+                #al_bot.send_message(first_chat_id, first_chat_name+ ', en El Quijote la palabra '+palabra+" aparece "+str(n)+' veces.')
                 # new_offset = first_update_id + 1
+
+
+#               with open(merch.jpg) as f:
+#                    mat = f.read()
+
 
 
 
