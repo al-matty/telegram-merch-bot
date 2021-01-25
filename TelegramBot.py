@@ -1,11 +1,13 @@
 # -*- coding: UTF8 -*-
-# bot framework by @magnito
+# bot framework by @magnito, rest by @al-matty
 
+import time
+import random
 import requests
 import datetime
 import imageio
 from imageManipulation import updatePic
-
+from scrapeData import getMetrics
 
 
 class BotHandler:
@@ -56,7 +58,9 @@ def main():
     new_offset = 0
     print('Bot launched.')
 
-
+    # update token and set delay for fetching metrics (~ once per minute)
+    randDelay = [random.randrange(45,75) for i in range(10)]
+    tokenData, lastFetched = getMetrics()
 
     while True:
         all_updates=al_bot.get_updates(new_offset)
@@ -83,38 +87,35 @@ def main():
               # Some chat functions
 
                 if first_chat_text == 'Hi':
-                    al_bot.send_message(first_chat_id, 'Morning ' + first_chat_name)
+                    al_bot.send_message(first_chat_id, 'Morning ' + first_chat_name + '.')
                     new_offset = first_update_id + 1
 
                 elif first_chat_text == '/merch':
 #                    upToDateMerch = updatePic(picPath)
 
+                    # update token data
+                    currentTime = int(time.time())
+                    delay = random.choice(randDelay)
+
+                    if currentTime - delay  < lastFetched:
+                        lastMetrics = tokenData
+                    else:
+                        lastMetrics, lastFetched = getMetrics()
+
+                    sendStr = ''
+                    for key, val in lastMetrics.items():
+                        sendStr += f'{key}: {val}\n'
+
 #                    al_bot.send_image(first_chat_id, picData)
                     print(picData)
-                    al_bot.send_message(first_chat_id, 'Merch' + first_chat_name)
+                    al_bot.send_message(first_chat_id, sendStr + first_chat_name)
                     new_offset = first_update_id + 1
                 else:
                     new_offset = first_update_id + 1
 
-#                    al_bot.send_message(first_chat_id, 'How are you doing? Bzzzz...'+first_chat_name)
+                    al_bot.send_message(first_chat_id, 'How are you doing, '+first_chat_name+'?')
 
 
-
-
-#               # word counting functionality
-
-                # with codecs.open("quijote.txt", 'r', encoding='utf8') as f:
-                #     libro = f.read()
-                # palabra=first_chat_text
-                # n = libro.count(palabra)
-                # f.close()
-                #
-                #al_bot.send_message(first_chat_id, first_chat_name+ ', en El Quijote la palabra '+palabra+" aparece "+str(n)+' veces.')
-                # new_offset = first_update_id + 1
-
-
-#               with open(merch.jpg) as f:
-#                    mat = f.read()
 
 
 

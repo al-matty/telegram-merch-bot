@@ -23,3 +23,16 @@ def send_image(botToken, imageFile, chat_id):
         command = 'curl -s -X POST https://api.telegram.org/bot' + botToken + '/sendPhoto -F chat_id=' + chat_id + " -F photo=@" + imageFile
         subprocess.call(command.split(' '))
         return
+
+
+# writing to csv:
+import csv
+
+csvFile = open('test.csv', 'w+')    # will create if not existing already
+try:
+    writer = csv.writer(csvFile)
+    writer.writerow(('number', 'number plus 2', 'number times 2'))
+    for i in range(10):
+        writer.writerow( (i, i+2, i*2))
+finally:
+    csvFile.close()
