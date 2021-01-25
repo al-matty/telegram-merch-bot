@@ -60,7 +60,7 @@ def main():
 
     # update token and set delay for fetching metrics (~ once per minute)
     randDelay = [random.randrange(45,75) for i in range(10)]
-    tokenData, lastFetched = getMetrics()
+    currentMerch, lastFetched = updatePic()
 
     while True:
         all_updates=al_bot.get_updates(new_offset)
@@ -91,16 +91,16 @@ def main():
                     new_offset = first_update_id + 1
 
                 elif first_chat_text == '/merch':
-#                    upToDateMerch = updatePic(picPath)
 
-                    # update token data
                     currentTime = int(time.time())
                     delay = random.choice(randDelay)
 
                     if currentTime - delay  < lastFetched:
-                        lastMetrics = tokenData
+                        pass
                     else:
-                        lastMetrics, lastFetched = getMetrics()
+                        currentMerch, lastFetched = updatePic()
+
+                    # find a way to send the image...
 
                     sendStr = ''
                     for key, val in lastMetrics.items():
