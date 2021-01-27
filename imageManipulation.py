@@ -4,6 +4,7 @@
 Image Manipulation Module for MerchBot
 """
 import time
+from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 from scrapeData import getMetrics
 
@@ -41,6 +42,7 @@ def updatePic():
         def drawTokenData(img, position, dict_):
             '''assume image, position and token metrics dict and print on image'''
 
+            # Draw token metrics
             d1 = ImageDraw.Draw(img)
             myFont = ImageFont.truetype('Arial.ttf', 18)
 
@@ -52,23 +54,29 @@ def updatePic():
             d1.text(posMc, strMc, font=myFont, fill =(237, 187, 130))
             d1.text(posSup, strSup, font=myFont, fill =(237, 187, 130))
 
+            # Draw current time
+            timeStamp = int(time.time())    # Get current time in unix format
+            parsedTs = datetime.utcfromtimestamp(timeStamp).strftime('%d %b %Y')
+            drawTime = 'Figures as at ' + parsedTs
+
+            dateFont = ImageFont.truetype('Arial.ttf', 14)
+            d1.text((1025, 462), drawTime, font=dateFont, fill =(237, 187, 130))
+
             return img
+
 
         for key in dictOfDicts.keys():
 
             pos = dictOfDicts[key]['pos']
-            print(f'iM: looking for marketCap soon in this dict under {key}...')
             [print(item) for item in dictOfDicts.items()]
             updatedPic = drawTokenData(img, pos, dictOfDicts[key])
 
         updatedPic.save('currentMerch.png')
-
         return updatedPic
 
+
+    timeStamp = int(time.time())    # Get current time in unix format
     img = Image.open(template)
     updatedPic = drawData(img, dictOfDicts)
-
-    # get current time (unix format)
-    timeStamp = int(time.time())
 
     return updatedPic, timeStamp
