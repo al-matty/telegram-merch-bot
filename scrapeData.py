@@ -1,32 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# scraping from coingecko.com. Called every ~1 minute to update token metrics
-# does nothing except regularly updating metrics.csv file
-
+"""
+Web Scraping Module for MerchBot
+"""
 import urllib.request
 from bs4 import BeautifulSoup
 import time
+import random
 
 
-url = 'https://www.coingecko.com/en/coins/yield'
-userAgent = (
-    'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 '
-    '(KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
-    )
-
-#TODO make this function abstract to iterate over four tokens
-#   ->  for token in tokens:
-#           dict = getMetrics(token)
-#           add token metrics + position to dict of dicts
-
-def getMetrics():
+def scrape(dict_, dictKey):
     """
-    Returns a tuple:
-    (dict of dicts of token metrics scraped from coingecko.com,
-     current unix time)
+    Returns a dictionary of token metrics for the token specified
     """
 
+    commonUrl = 'https://www.coingecko.com/en/coins/'
+    userAgent = (
+        'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
+        )
+
+
+    url = commonUrl + dictKey
     req = urllib.request.Request(url, headers= {'User-Agent' : userAgent})
     html = urllib.request.urlopen(req)
 
@@ -50,55 +45,35 @@ def getMetrics():
     circSupply = float(circSupply.get_text().split('/')[0].strip().replace(',',''))
     metrics['circSupply'] = circSupply
 
+    # add position tuple for drawing onto the image
+    metrics['pos'] = dict_[dictKey]
+
+    print('sD: Sending out this data:')
+    [print(item) for item in metrics.items()]
+
+    return metrics
 
 
+def getMetrics():
 
-#TODO return an actual dict of dicts for the four tokens needed
-
-    # temporary way to produce a dict of dicts for testing:
-
-    dictOfDicts = {
-        'AAVE': {
-        'pos': (15,168),
-        'priceUSD': 447.09,
-        'marketCap': 19093615940.0,
-        '24hVol': 2682487.0,
-        '24hLow': 47.15,
-        '24hHigh': 60.27,
-        'circSupply': 13008758.0
-        },
-
-        'COMP': {
-        'pos': (311,168),
-        'priceUSD': 999.09,
-        'marketCap': 1300615940.0,
-        '24hVol': 2682487.0,
-        '24hLow': 47.15,
-        '24hHigh': 60.27,
-        'circSupply': 5000758.0
-        },
-
-        'CEL': {
-        'pos': (607,168),
-        'priceUSD': 47.09,
-        'marketCap': 19940.0,
-        '24hVol': 2682487.0,
-        '24hLow': 47.15,
-        '24hHigh': 60.27,
-        'circSupply': 2388758.0
-        },
-
-        'YLD': {
-        'pos': (900,168),
-        'priceUSD': 47.09,
-        'marketCap': 13615940.0,
-        '24hVol': 2682487.0,
-        '24hLow': 47.15,
-        '24hHigh': 60.27,
-        'circSupply': 288758.0
-        }
+    # Dict to determine which tokens to scrape information for, as well
+    # as for the positioning in the image
+    tokens = {
+        'aave': (15,168),
+        'compound': (311,168),
+        'celsius-network-token': (607,168),
+        'yield': (900,168),
         }
 
+    dictOfDicts = {}
 
+
+    for key in tokens.keys():
+
+        # get data for token
+        dictOfDicts[key] = scrape(tokens, key)
+
+        # wait a tiny bit to hopefully not get banned on Coingecko
+        time.sleep(random.randrange(20,30,1)/100)
 
     return dictOfDicts

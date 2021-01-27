@@ -1,128 +1,168 @@
-# -*- coding: UTF8 -*-
-# bot framework by @magnito, rest by @al-matty
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Bot framework taken from Andrés Ignacio Torres <andresitorresm@gmail.com>,
+all other files by Al Matty <andresitorresm@gmail.com>.
+"""
 import time
 import random
-import requests
-import datetime
-import imageio
+import logging
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
+from PIL import Image
 from imageManipulation import updatePic
-from scrapeData import getMetrics
 
 
-class BotHandler:
-    def __init__(self, token):
-            self.token = token
-            self.api_url = "https://api.telegram.org/bot{}/".format(token)
+class MerchBot:
 
-    #url = "https://api.telegram.org/bot<token>/"
+    TELEGRAM_GROUP = 'group'
 
-    def get_updates(self, offset=0, timeout=30):
-        method = 'getUpdates'
-        params = {'timeout': timeout, 'offset': offset}
-        resp = requests.get(self.api_url + method, params)
-        result_json = resp.json()['result']
-        return result_json
+    """
+    A class to encapsulate all relevant methods of the bot.
+    """
 
-    def send_message(self, chat_id, text):
-        params = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
-        method = 'sendMessage'
-        resp = requests.post(self.api_url + method, params)
-        return resp
+    def __init__(self):
+        """
+        Constructor of the class. Initializes certain instance variables
+        and checks if everything's O.K. for the bot to work as expected.
+        """
 
-    # def send_image(self, chat_id, imageFile):
-    #         command = 'curl -s -X POST https://api.telegram.org/bot' + str(token) + '/sendPhoto -F chat_id=' + str(chat_id) + " -F photo=@" + imageFile
-    #         subprocess.call(command.split(' '))
-    #         return
+        # This environment variable should be set before using the bot
+        self.token = '1515330813:AAFymu9nZtJ9vhPovYfmolQ-SyCjna-5D_c'
+
+        # Create some delay to not overdo the web scraping
+        self.randDelay = [random.randrange(45,75) for i in range(10)]
+
+        # Fetches data right at the start
+        self.currentMerch, self.lastFetched = updatePic()
+
+        # These will be checked against as substrings within each
+        # message, so different variations are not required if their
+        # radix is present (e.g. "pup" covers "puppy" and "pupper" too)
+        self.merch_trigger = ['/merch']
+
+
+        # Same as earlier triggers, but for sad messages
+        self.alt_trigger = ['alt']
+
+
+        # Stops runtime if the token has not been set
+        if self.token is None:
+            raise RuntimeError(
+                "FATAL: No token was found. " + \
+                "You might need to specify one or more environment variables.")
+
+        # Configures logging in debug level to check for errors
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                            level=logging.DEBUG)
 
 
 
-    def get_first_update(self):
-        get_result = self.get_updates()
+    def run_bot(self):
+        """
+        Sets up the required bot handlers and starts the polling
+        thread in order to successfully reply to messages.
+        """
 
-        if len(get_result) > 0:
-            last_update = get_result[0]
+        # Instantiates the bot updater
+        self.updater = Updater(self.token, use_context=True)
+        self.dispatcher = self.updater.dispatcher
+
+        # Declares and adds handlers for commands that shows help info
+        start_handler = CommandHandler('start', self.show_help)
+        help_handler = CommandHandler('help', self.show_help)
+        self.dispatcher.add_handler(start_handler)
+        self.dispatcher.add_handler(help_handler)
+
+        # Declares and adds a handler to send a picture on demand
+        merch_handler = CommandHandler('merch', self.sendPic)
+        self.dispatcher.add_handler(merch_handler)
+
+        # Declares and adds a handler for text messages that will reply with
+        # a pic if the message includes a trigger word
+        text_handler = MessageHandler(Filters.text, self.handle_text_messages)
+        self.dispatcher.add_handler(text_handler)
+
+        # Fires up the polling thread. We're live!
+        self.updater.start_polling()
+
+
+    def show_help(self, update, context):
+        """
+        Sends the user a brief message explaining how to use the bot.
+        """
+        pass
+        #HELP_MSG = "If you're down for some merch bro, use the" + \
+        #            "/merch command bro.."
+        #context.bot.send_message(chat_id=update.message.chat_id, text=HELP_MSG)
+
+
+    def handle_text_messages(self, update, context):
+        """
+        Checks if a message comes from a group. If that is not the case,
+        or if the message includes a trigger word, replies with a dog picture.
+        """
+        words = set(update.message.text.lower().split())
+        logging.debug(f'Received message: {update.message.text}')
+        logging.debug(f'Splitted words: {", ".join(words)}')
+
+
+        # Possibility: received command '/merch'
+        shouldTriggerPicture = False
+        for Trigger in self.merch_trigger:
+            for word in words:
+                if word.startswith(Trigger):
+                    shouldTriggerPicture = True
+                    break
+
+        if shouldTriggerPicture:
+            self.sendPic(update, context)
+
+
+    def getMerch(self):
+        """
+        Sends either the stored merch or updates it if necessary.
+        Returns the image data to be sent.
+        """
+
+        currentTime = int(time.time())
+        delay = random.choice(self.randDelay)
+
+        if currentTime - delay  < self.lastFetched:
+            pass
         else:
-            last_update = None
+            self.currentMerch, self.lastFetched = updatePic()
 
-        return last_update
+        return self.currentMerch
 
 
-token = '1515330813:AAFymu9nZtJ9vhPovYfmolQ-SyCjna-5D_c' #Token of your bot
-al_bot = BotHandler(token) #Your bot's name
-#picPath = './testPic.png'
-picUrl = 'https://cdn.publish0x.com/prod/fs/cachedimages/4085357584-80ce03db23204e1f181d30d21c8e80750d0d67f88307f08c77f553fba78b2f4f.png'
-picData = imageio.imread(picUrl)
+    def sendPic(self, update, context, caption=None):
+        """
+        Sends the merch.
+        """
+
+        self.getMerch()
+        time.sleep(1)
+        image = 'currentMerch.png'
+
+        with open(image, 'rb') as img:
+
+            # Sends the picture
+            context.bot.send_photo(
+                chat_id=update.message.chat_id,
+                photo=img,
+                caption=caption
+                )
 
 def main():
-    new_offset = 0
-    print('Bot launched.')
+    """
+    Entry point of the script. If run directly, instantiates the
+    MerchBot class and fires it up!
+    """
 
-    # update token and set delay for fetching metrics (~ once per minute)
-    randDelay = [random.randrange(45,75) for i in range(10)]
-    currentMerch, lastFetched = updatePic()
-
-    while True:
-        all_updates=al_bot.get_updates(new_offset)
-
-        if len(all_updates) > 0:
-            for current_update in all_updates:
-                print(current_update)
-                first_update_id = current_update['update_id']
-                if 'text' not in current_update['message']:
-                    first_chat_text='New member'
-                else:
-                    first_chat_text = current_update['message']['text']
-                first_chat_id = current_update['message']['chat']['id']
-                if 'first_name' in current_update['message']:
-                    first_chat_name = current_update['message']['chat']['first_name']
-                elif 'new_chat_member' in current_update['message']:
-                    first_chat_name = current_update['message']['new_chat_member']['username']
-                elif 'from' in current_update['message']:
-                    first_chat_name = current_update['message']['from']['first_name']
-                else:
-                    first_chat_name = "unknown"
+    merch_bot = MerchBot()
+    merch_bot.run_bot()
 
 
-              # Some chat functions
-
-                if first_chat_text == 'Hi':
-                    al_bot.send_message(first_chat_id, 'Morning ' + first_chat_name + '.')
-                    new_offset = first_update_id + 1
-
-                elif first_chat_text == '/merch':
-
-                    currentTime = int(time.time())
-                    delay = random.choice(randDelay)
-
-                    if currentTime - delay  < lastFetched:
-                        pass
-                    else:
-                        currentMerch, lastFetched = updatePic()
-
-                    # find a way to send the image...
-
-                    sendStr = ''
-                    for key, val in lastMetrics.items():
-                        sendStr += f'{key}: {val}\n'
-
-#                    al_bot.send_image(first_chat_id, picData)
-                    print(picData)
-                    al_bot.send_message(first_chat_id, sendStr + first_chat_name)
-                    new_offset = first_update_id + 1
-                else:
-                    new_offset = first_update_id + 1
-
-                    al_bot.send_message(first_chat_id, 'How are you doing, '+first_chat_name+'?')
-
-
-
-
-
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        exit()
+# If the script is run directly, fires the main procedure
+if __name__ == "__main__":
+    main()

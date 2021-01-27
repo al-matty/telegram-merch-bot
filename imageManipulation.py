@@ -1,6 +1,8 @@
-# -*- coding: UTF8 -*-
-# This file contains all the actual processing of the image
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Image Manipulation Module for MerchBot
+"""
 import time
 from PIL import Image, ImageDraw, ImageFont
 from scrapeData import getMetrics
@@ -12,7 +14,7 @@ def updatePic():
     Returns tuple (image, unix time stamp).
     '''
     dictOfDicts = getMetrics()
-    template = 'YLDtest.png'
+    template = 'YLDTemplate.png'
 
     def drawData(img, dictOfDicts):
         '''
@@ -32,9 +34,9 @@ def updatePic():
         def getSupplStr(dict_):
             '''return circulating supply string'''
             if dict_['circSupply'] < 1000000:
-                return str(round(dict_['circSupply'] / 1000)) + 'k'
+                return str(round(dict_['circSupply'] / 1000, 1)) + 'k'
             else:
-                return str(round(dict_['circSupply'] / 1000000)) + 'm'
+                return str(round(dict_['circSupply'] / 1000000, 1)) + 'm'
 
         def drawTokenData(img, position, dict_):
             '''assume image, position and token metrics dict and print on image'''
@@ -55,7 +57,11 @@ def updatePic():
         for key in dictOfDicts.keys():
 
             pos = dictOfDicts[key]['pos']
+            print(f'iM: looking for marketCap soon in this dict under {key}...')
+            [print(item) for item in dictOfDicts.items()]
             updatedPic = drawTokenData(img, pos, dictOfDicts[key])
+
+        updatedPic.save('currentMerch.png')
 
         return updatedPic
 

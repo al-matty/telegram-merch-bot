@@ -3,10 +3,10 @@
 
 A Telegram bot that produces merchandise for the cryptocurrency 'YLD' on demand.
 You can add this bot on Telegram by searching for its handle '@YLDMerchBot'.
-Upon the command '\merch' it sends back this image with the token metrics
+Send it '/merch' and it sends back this image with the token metrics
 circulating supply and market capitalization, that are updated each minute:
 
-![Preview](https://your-copied-image-address)
+![Preview](https://github.com/al-matty/TelegramMerchBot/blob/main/currentMerch.png)
 
 It does so in three steps:
 
