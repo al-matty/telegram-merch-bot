@@ -76,4 +76,5 @@ def getMetrics():
         # wait a tiny bit to hopefully not get banned on Coingecko
         time.sleep(random.randrange(20,30,1)/100)
 
+
     return dictOfDicts

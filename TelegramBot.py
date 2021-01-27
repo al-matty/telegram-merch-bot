@@ -153,6 +153,7 @@ class MerchBot:
                 caption=caption
                 )
 
+
 def main():
     """
     Entry point of the script. If run directly, instantiates the

@@ -64,7 +64,6 @@ def updatePic():
 
             return img
 
-
         for key in dictOfDicts.keys():
 
             pos = dictOfDicts[key]['pos']
