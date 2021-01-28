@@ -48,9 +48,6 @@ def scrape(dict_, dictKey):
     # add position tuple for drawing onto the image
     metrics['pos'] = dict_[dictKey]
 
-    print('sD: Sending out this data:')
-    [print(item) for item in metrics.items()]
-
     return metrics
 
 

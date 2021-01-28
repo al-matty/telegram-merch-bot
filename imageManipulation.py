@@ -44,7 +44,7 @@ def updatePic():
 
             # Draw token metrics
             d1 = ImageDraw.Draw(img)
-            myFont = ImageFont.truetype('Arial.ttf', 18)
+            myFont = ImageFont.truetype('GothamBook.ttf', 18)
 
             posMc = position
             posSup = (position[0] + 148, position[1])
@@ -57,17 +57,18 @@ def updatePic():
             # Draw current time
             timeStamp = int(time.time())    # Get current time in unix format
             parsedTs = datetime.utcfromtimestamp(timeStamp).strftime('%d %b %Y')
-            drawTime = 'Figures as at ' + parsedTs
+            drawTime = 'Figures as at ' + str(parsedTs)
 
-            dateFont = ImageFont.truetype('Arial.ttf', 14)
-            d1.text((1025, 462), drawTime, font=dateFont, fill =(237, 187, 130))
+            dateFont = ImageFont.truetype('GothamBook.ttf', 14)
+            d1.text((1018, 462), drawTime, font=dateFont, fill =(237, 187, 130))
 
             return img
 
         for key in dictOfDicts.keys():
 
-            pos = dictOfDicts[key]['pos']
-            [print(item) for item in dictOfDicts.items()]
+            # Some position adjustment to factor in the changed font
+            pos = (dictOfDicts[key]['pos'][0], dictOfDicts[key]['pos'][1] + 2)
+            # Draw token metrics on image
             updatedPic = drawTokenData(img, pos, dictOfDicts[key])
 
         updatedPic.save('currentMerch.png')

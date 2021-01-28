@@ -6,7 +6,7 @@ all other files by Al Matty <andresitorresm@gmail.com>.
 """
 import time
 import random
-import logging
+#import logging
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 from PIL import Image
 from imageManipulation import updatePic
@@ -52,8 +52,8 @@ class MerchBot:
                 "You might need to specify one or more environment variables.")
 
         # Configures logging in debug level to check for errors
-        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                            level=logging.DEBUG)
+#        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#                            level=logging.DEBUG)
 
 
 
@@ -102,8 +102,8 @@ class MerchBot:
         or if the message includes a trigger word, replies with a dog picture.
         """
         words = set(update.message.text.lower().split())
-        logging.debug(f'Received message: {update.message.text}')
-        logging.debug(f'Splitted words: {", ".join(words)}')
+#        logging.debug(f'Received message: {update.message.text}')
+#        logging.debug(f'Splitted words: {", ".join(words)}')
 
 
         # Possibility: received command '/merch'
