@@ -17,6 +17,32 @@ def updatePic():
     dictOfDicts = getMetrics()
     template = 'YLDTemplate.png'
 
+    def getMcStr(dict_, int_=False):
+        '''return market cap string'''
+        if dict_['marketCap'] < 1000000000:
+            if int_:
+                return str(round(dict_['marketCap'] / 1000000)) + 'm'
+            else:
+                return str(round(dict_['marketCap'] / 1000000, 1)) + 'm'
+        else:
+            if int_:
+                return str(round(dict_['marketCap'] / 1000000000)) + 'b'
+            else:
+                return str(round(dict_['marketCap'] / 1000000000, 1)) + 'b'
+
+    def getSupplStr(dict_, int_=False):
+        '''Returns circulating supply string'''
+        if dict_['circSupply'] < 1000000:
+            if int_:
+                return str(round(dict_['circSupply'] / 1000)) + 'k'
+            else:
+                return str(round(dict_['circSupply'] / 1000, 1)) + 'k'
+        else:
+            if int_:
+                return str(round(dict_['circSupply'] / 1000000)) + 'm'
+            else:
+                return str(round(dict_['circSupply'] / 1000000, 1)) + 'm'
+
     def drawData(img, dictOfDicts):
         '''
         Assumes an image and a dict of dicts of a position tuple and token metrics.
@@ -25,23 +51,11 @@ def updatePic():
         Returns updated image.
         '''
 
-        def getMcStr(dict_):
-            '''return market cap string'''
-            if dict_['marketCap'] < 1000000000:
-                return str(round(dict_['marketCap'] / 1000000, 1)) + 'm'
-            else:
-                return str(round(dict_['marketCap'] / 1000000000, 1)) + 'b'
-
-        def getSupplStr(dict_):
-            '''return circulating supply string'''
-            if dict_['circSupply'] < 1000000:
-                return str(round(dict_['circSupply'] / 1000, 1)) + 'k'
-            else:
-                return str(round(dict_['circSupply'] / 1000000, 1)) + 'm'
-
         def drawTokenData(img, position, dict_):
-            '''assume image, position and token metrics dict and print on image'''
-
+            '''
+            Assumes image, position and token metrics dict.
+            Prints data on image and returns it.
+            '''
             # Draw token metrics
             d1 = ImageDraw.Draw(img)
             myFont = ImageFont.truetype('GothamBook.ttf', 18)
@@ -64,19 +78,50 @@ def updatePic():
 
             return img
 
+        # Update, return and save 'currentmerch.png'
         for key in dictOfDicts.keys():
-
             # Some position adjustment to factor in the changed font
             pos = (dictOfDicts[key]['pos'][0], dictOfDicts[key]['pos'][1] + 2)
             # Draw token metrics on image
             updatedPic = drawTokenData(img, pos, dictOfDicts[key])
-
         updatedPic.save('currentMerch.png')
         return updatedPic
 
 
-    timeStamp = int(time.time())    # Get current time in unix format
+    def drawExtras():
+        '''
+        Draws extra stuff as specified in customizable extrasDict.
+        Saves to finlenames as in extrasDict.keys().
+        Does not return anything.
+        '''
+        extrasDict = {
+            'YLD1.jpg':{'mcPos': (354,66), 'supPos': (528,66), 'fontSize': 20, 'color': (237, 187, 130)},
+            'YLD2.jpg':{'mcPos': (454,667), 'supPos': (648,667), 'fontSize': 22, 'color': (237, 187, 130)},
+            'YLD3.jpg':{'mcPos': (70,468), 'supPos': (450,468), 'fontSize': 44, 'color': (254, 254, 254)}
+            }
+
+        marketCap = '$' + getMcStr(dictOfDicts['yield'], int_=True)
+        circSupply = getSupplStr(dictOfDicts['yield'], int_=True)
+
+        for pic in extrasDict.keys():
+            img = Image.open('Template' + pic)
+            d1 = ImageDraw.Draw(img)
+            myFont = ImageFont.truetype('GothamBook.ttf', extrasDict[pic]['fontSize'])
+
+            if extrasDict[pic]['mcPos']:
+                d1.text(extrasDict[pic]['mcPos'], \
+                    marketCap, font=myFont, fill=extrasDict[pic]['color'])
+            if extrasDict[pic]['supPos']:
+                d1.text(extrasDict[pic]['supPos'], \
+                    circSupply, font=myFont, fill=extrasDict[pic]['color'])
+            img.save(pic)
+
+    # Get current time in unix format
+    timeStamp = int(time.time())
     img = Image.open(template)
     updatedPic = drawData(img, dictOfDicts)
+
+    # Draw and save extra images specified within drawExtras() function
+    drawExtras()
 
     return updatedPic, timeStamp

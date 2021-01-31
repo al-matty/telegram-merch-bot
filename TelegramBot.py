@@ -29,7 +29,7 @@ class MerchBot:
         # This environment variable should be set before using the bot
         self.token = '1515330813:AAFymu9nZtJ9vhPovYfmolQ-SyCjna-5D_c'
 
-        # Create some delay to not overdo the web scraping
+        # Create some delay sequence to not overdo the web scraping
         self.randDelay = [random.randrange(45,75) for i in range(10)]
 
         # Fetches data right at the start
@@ -134,7 +134,7 @@ class MerchBot:
 
         return self.currentMerch
 
-
+    # Send out whatever specified in images
     def sendPic(self, update, context, caption=None):
         """
         Sends the merch.
@@ -142,16 +142,18 @@ class MerchBot:
 
         self.getMerch()
         time.sleep(1)
-        image = 'currentMerch.png'
 
-        with open(image, 'rb') as img:
+        images = ['currentMerch.png', 'YLD1.jpg', 'YLD2.jpg', 'YLD3.jpg']
 
-            # Sends the picture
-            context.bot.send_photo(
-                chat_id=update.message.chat_id,
-                photo=img,
-                caption=caption
-                )
+        for image in images:
+            with open(image, 'rb') as img:
+
+                # Sends the picture
+                context.bot.send_photo(
+                    chat_id=update.message.chat_id,
+                    photo=img,
+                    caption=caption
+                    )
 
 
 def main():
