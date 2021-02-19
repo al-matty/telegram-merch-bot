@@ -1,4 +1,4 @@
-# TelegramMerchBot
+# Telegram-merch-bot
 
 
 A Telegram bot that produces merchandise for the cryptocurrency 'YLD' on demand.

@@ -143,7 +143,13 @@ class MerchBot:
         self.getMerch()
         time.sleep(1)
 
-        images = ['currentMerch.png', 'YLD1.jpg', 'YLD2.jpg', 'YLD3.jpg']
+        images = [
+            'currentMerch.png',
+            'YLD1.jpg',
+            'YLD2.jpg',
+            'YLD3.jpg',
+            'YLD3.jpg'
+            ]
 
         for image in images:
             with open(image, 'rb') as img:
