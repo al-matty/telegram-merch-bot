@@ -148,7 +148,7 @@ class MerchBot:
             'YLD1.jpg',
             'YLD2.jpg',
             'YLD3.jpg',
-            'YLD3.jpg'
+            'YLD4.jpg'
             ]
 
         for image in images:
