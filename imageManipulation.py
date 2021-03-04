@@ -95,8 +95,8 @@ def updatePic():
         Does not return anything.
         '''
         extrasDict = {
-            'YLD1.jpg':{'mcPos': (351,66), 'supPos': (528,66), 'fontSize': 20, 'color': (237, 187, 130)},
-            'YLD2.jpg':{'mcPos': (452,667), 'supPos': (646,667), 'fontSize': 22, 'color': (237, 187, 130)},
+            'YLD1.jpg':{'mcPos': (350,67), 'supPos': (528,67), 'fontSize': 18, 'color': (237, 187, 130)},
+            'YLD2.jpg':{'mcPos': (452,669), 'supPos': (646,669), 'fontSize': 20, 'color': (237, 187, 130)},
             'YLD3.jpg':{'mcPos': (70,468), 'supPos': (450,468), 'fontSize': 44, 'color': (254, 254, 254)}
             }
 

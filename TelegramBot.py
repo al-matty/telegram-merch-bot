@@ -56,7 +56,6 @@ class MerchBot:
 #                            level=logging.DEBUG)
 
 
-
     def run_bot(self):
         """
         Sets up the required bot handlers and starts the polling
@@ -134,6 +133,7 @@ class MerchBot:
 
         return self.currentMerch
 
+
     # Send out whatever specified in images
     def sendPic(self, update, context, caption=None):
         """
@@ -148,7 +148,8 @@ class MerchBot:
             'YLD1.jpg',
             'YLD2.jpg',
             'YLD3.jpg',
-            'YLD4.jpg'
+            'YLD4.jpg',
+            'YLDMastersOfDefi.JPG'
             ]
 
         for image in images:
@@ -160,7 +161,12 @@ class MerchBot:
                     photo=img,
                     caption=caption
                     )
-
+        # Log users that got merch from bot
+        chat_user_client = update.message.from_user.username
+        if chat_user_client == None:
+            chat_user_client = update.message.chat_id
+#        logging.info(f'{chat_user_client} got merch!')
+        print(f'{chat_user_client} got merch!')
 
 def main():
     """
