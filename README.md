@@ -6,15 +6,16 @@ You can add this bot on Telegram by searching for its handle `@YLDMerchBot`.
 Send it `/merch` and it sends back infographics with always up-to-date token
 metrics like circulating supply and market capitalization.
 
-Here is one example of the bot's output:
-
-![Preview](https://github.com/al-matty/TelegramMerchBot/blob/main/currentMerch.png)
-
 It does so in three steps:
 
 1. Scrape and store up-to-date token metrics from coingecko.com.
 2. Draw scraped data onto the template image.
-3. Send image to user on demand.
+3. Send image to user via Telegram.
+
+Here is an example of one of the infograpics the bot delivers. Keep in mind
+that the 'golden' metrics are up-to-date as of the time requested via Telegram.
+
+![Preview](https://github.com/al-matty/TelegramMerchBot/blob/main/currentMerch.png)
 
 ## Requirements & Installation
 
