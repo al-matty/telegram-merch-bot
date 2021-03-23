@@ -29,9 +29,6 @@ class MerchBot:
         # This environment variable should be set before using the bot
         self.token = '1515330813:AAFymu9nZtJ9vhPovYfmolQ-SyCjna-5D_c'
 
-        # Create some delay sequence to not overdo the web scraping
-        self.randDelay = [random.randrange(45,75) for i in range(10)]
-
         # Fetches data right at the start
         self.currentMerch, self.lastFetched = updatePic()
 
@@ -98,7 +95,7 @@ class MerchBot:
     def handle_text_messages(self, update, context):
         """
         Checks if a message comes from a group. If that is not the case,
-        or if the message includes a trigger word, replies with a dog picture.
+        or if the message includes a trigger word, replies with merch.
         """
         words = set(update.message.text.lower().split())
 #        logging.debug(f'Received message: {update.message.text}')
@@ -117,18 +114,20 @@ class MerchBot:
             self.sendPic(update, context)
 
 
-    def getMerch(self):
+    def getMerch(self, update, context):
         """
         Sends either the stored merch or updates it if necessary.
         Returns the image data to be sent.
         """
 
         currentTime = int(time.time())
-        delay = random.choice(self.randDelay)
 
-        if currentTime - delay  < self.lastFetched:
-            pass
-        else:
+        # Scrape max. once a minute from Coingecko
+        if currentTime - self.lastFetched > 120:
+
+            MSG = 'Preparing your merch... \nGetting fresh numbers...'
+            context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
+
             self.currentMerch, self.lastFetched = updatePic()
 
         return self.currentMerch
@@ -140,16 +139,16 @@ class MerchBot:
         Sends the merch.
         """
 
-        self.getMerch()
-        time.sleep(1)
+        self.getMerch(update, context)
 
         images = [
+            'YLDMastersOfDefi.JPG',
             'currentMerch.png',
             'YLD1.jpg',
             'YLD2.jpg',
             'YLD3.jpg',
-            'YLD4.jpg',
-            'YLDMastersOfDefi.JPG'
+            #'YLD4.jpg',
+            'YLD_Moon.jpg'
             ]
 
         for image in images:
@@ -167,6 +166,9 @@ class MerchBot:
             chat_user_client = update.message.chat_id
 #        logging.info(f'{chat_user_client} got merch!')
         print(f'{chat_user_client} got merch!')
+
+        # Some protection against repeatedly calling the bot
+        time.sleep(0.3)
 
 def main():
     """
