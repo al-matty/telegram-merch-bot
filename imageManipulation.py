@@ -115,7 +115,7 @@ def updatePic():
                     circSupply, font=myFont, fill=extrasDict[pic]['color'])
             img.save(pic)
 
-    def draw_moon_pic():
+def draw_moon_pic():
 
         moon_metrics = get_moon_metrics()
 
@@ -147,27 +147,26 @@ def updatePic():
             else:
                 return str(round(float_))
 
-
         def draw_row(moon_metric, pos_y):
-            color = (237, 187, 130)
+            #gold = (237, 187, 130)
+            white = (255, 255, 255)
 
             # Draw mc twice
             mc = '$' + parse_str(moon_metric['marketCap'])
             pos_x = 525 - (len(mc) / 2)
-            d1.text((pos_x, pos_y), mc, font=myFont, fill=color)
-            d1.text((pos_x + 280, pos_y), mc, font=myFont, fill=color)
+            d1.text((pos_x, pos_y), mc, font=myFont, fill=white)
+            d1.text((pos_x + 280, pos_y), mc, font=myFont, fill=white)
 
             # Draw ROI
             roi = str(int(moon_metric['marketCap'] // yield_mc)) + 'x'
             pos_x = 150 - (len(roi)/ 2)
-            d1.text((pos_x, pos_y), roi, font=myFont, fill=color)
+            d1.text((pos_x, pos_y), roi, font=myFont, fill=white)
 
             # Draw YLD extrapolated price
             multiplier = moon_metric['marketCap'] / yield_mc
             yld_price = '$' + parse_str(floor(multiplier * yield_price))
             pos_x = 335 - (len(yld_price)/ 2)
-            d1.text((pos_x, pos_y), yld_price, font=myFont, fill=color)
-
+            d1.text((pos_x, pos_y), yld_price, font=myFont, fill=white)
 
 
         pos_y = 348
@@ -180,7 +179,21 @@ def updatePic():
             pos_y += 107
 
 
+        # Draw time last updated
+        pos = (665,970)
+        gold = (237, 187, 130)
+
+        timeStamp = int(time.time())
+        parsedTs = datetime.utcfromtimestamp(timeStamp).strftime('%d %b %Y')
+        drawTime = 'Figures as at ' + str(parsedTs)
+        dateFont = ImageFont.truetype('GothamBook.ttf', size=20)
+
+        d1.text(pos, drawTime, font=dateFont, fill =gold)
+
+
+
         img.save(pic)
+
 
 
 
