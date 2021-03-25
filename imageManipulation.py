@@ -187,12 +187,13 @@ def updatePic():
     # Get current time in unix format
     timeStamp = int(time.time())
     img = Image.open(template)
-    updatedPic = drawData(img, dictOfDicts)
+#    updatedPic = drawData(img, dictOfDicts)
 
     # Draw and save extra images specified within drawExtras() function
-    drawExtras()
-
+#    drawExtras()
+# TODO: Uncomment again
     # Draw and save moon_pic with YLD mc extrapolation
     draw_moon_pic()
 
-    return updatedPic, timeStamp
+#    return updatedPic, timeStamp
+    return None, timeStamp

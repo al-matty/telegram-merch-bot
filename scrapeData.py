@@ -133,7 +133,7 @@ def get_moon_metrics():
         dictOfDicts[key] = scrape_price_mc(tokens, key)
 
         # wait a tiny bit to hopefully not get banned on Coingecko
-        time.sleep(random.randrange(20,30,1)/100)
+        time.sleep(random.randrange(50,100,10)/100)
 
 
     return dictOfDicts

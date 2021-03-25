@@ -31,6 +31,7 @@ class MerchBot:
 
         # Fetches data right at the start
         self.currentMerch, self.lastFetched = updatePic()
+        time.sleep(1)
 
         # These will be checked against as substrings within each
         # message, so different variations are not required if their
@@ -114,7 +115,7 @@ class MerchBot:
             self.sendPic(update, context)
 
 
-    def getMerch(self, update, context):
+    def getMerch(self):
         """
         Sends either the stored merch or updates it if necessary.
         Returns the image data to be sent.
@@ -124,9 +125,6 @@ class MerchBot:
 
         # Scrape max. once a minute from Coingecko
         if currentTime - self.lastFetched > 120:
-
-            MSG = 'Preparing your merch... \nGetting fresh numbers...'
-            context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
 
             self.currentMerch, self.lastFetched = updatePic()
 
@@ -139,14 +137,24 @@ class MerchBot:
         Sends the merch.
         """
 
-        self.getMerch(update, context)
+        MSG = 'Preparing your merch... \nGetting fresh numbers...'
+#        MSG = "Bot is in maintenance mode right now, being fixed. " + \
+#        "Just in case, this is the newest merch (not updated since " + \
+#        "Mar 24 1:00 UTC)."
+
+        context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
+
+#        chat_user_client = update.message.from_user.username
+#        print(f'{chat_user_client} got no merch AAAAAH!')
+
+        self.getMerch()
 
         images = [
-            'YLDMastersOfDefi.JPG',
-            'currentMerch.png',
-            'YLD1.jpg',
-            'YLD2.jpg',
-            'YLD3.jpg',
+            #'YLDMastersOfDefi.JPG',
+            #'currentMerch.png',
+            #'YLD1.jpg',
+            #'YLD2.jpg',
+            #'YLD3.jpg',
             #'YLD4.jpg',
             'YLD_Moon.jpg'
             ]
