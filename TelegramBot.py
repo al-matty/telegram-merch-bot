@@ -4,7 +4,7 @@
 Bot framework taken from Andrés Ignacio Torres <andresitorresm@gmail.com>,
 all other files by Al Matty <almatty@gmail.com>.
 """
-import time
+import time, os
 import random
 #import logging
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
@@ -27,7 +27,7 @@ class MerchBot:
         """
 
         # This environment variable should be set before using the bot
-        self.token = '1515330813:AAFymu9nZtJ9vhPovYfmolQ-SyCjna-5D_c'
+        self.token = os.environ['TELEGRAM_BOT_TOKEN']
 
         # Fetches data right at the start
         self.currentMerch, self.lastFetched = updatePic()
