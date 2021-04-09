@@ -9,7 +9,7 @@ import random
 #import logging
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 from PIL import Image
-from imageManipulation import updatePic
+from imageManipulation import *
 
 
 class MerchBot:
@@ -29,18 +29,29 @@ class MerchBot:
         # This environment variable should be set before using the bot
         self.token = os.environ['TELEGRAM_BOT_TOKEN']
 
-        # Fetches data right at the start
-        self.currentMerch, self.lastFetched = updatePic()
-        time.sleep(1)
 
         # These will be checked against as substrings within each
         # message, so different variations are not required if their
-        # radix is present (e.g. "pup" covers "puppy" and "pupper" too)
-        self.merch_trigger = ['/merch']
+        # radix is present (e.g. "all" covers "/all" and "ball")
+        self.menu_trigger = ['/all', '/merch']
+        self.cmd_trigger = ['/moonshot', '/comparison']
 
+        # Maps commands to pictures
+        self.image_map = {
+            '/moonshot': 'YLD_Moon.jpg',
+            '/comparison': 'YLD_Comp.png',
+            #'YLDMastersOfDefi.JPG',
+            #'YLD1.jpg',
+            #'YLD2.jpg',
+            #'YLD3.jpg',
+            #'YLD4.jpg'
+            }
 
-        # Same as earlier triggers, but for sad messages
-        self.alt_trigger = ['alt']
+        # Creates dict to store a timestamp for whenever a pic got updated
+        self.lastFetched = {}
+        for cmd in self.cmd_trigger:
+            img = self.image_map[cmd]
+            self.lastFetched[img] = None
 
 
         # Stops runtime if the token has not been set
@@ -65,14 +76,10 @@ class MerchBot:
         self.dispatcher = self.updater.dispatcher
 
         # Declares and adds handlers for commands that shows help info
-        start_handler = CommandHandler('start', self.show_help)
-        help_handler = CommandHandler('help', self.show_help)
+        start_handler = CommandHandler('start', self.show_menu)
+        help_handler = CommandHandler('help', self.show_menu)
         self.dispatcher.add_handler(start_handler)
         self.dispatcher.add_handler(help_handler)
-
-        # Declares and adds a handler to send a picture on demand
-        merch_handler = CommandHandler('merch', self.sendPic)
-        self.dispatcher.add_handler(merch_handler)
 
         # Declares and adds a handler for text messages that will reply with
         # a pic if the message includes a trigger word
@@ -83,14 +90,14 @@ class MerchBot:
         self.updater.start_polling()
 
 
-    def show_help(self, update, context):
+    def show_menu(self, update, context):
         """
         Sends the user a brief message explaining how to use the bot.
         """
-        pass
-        #HELP_MSG = "If you're down for some merch bro, use the" + \
-        #            "/merch command bro.."
-        #context.bot.send_message(chat_id=update.message.chat_id, text=HELP_MSG)
+        MENU_MSG = "Current merch:\n\n" + \
+                    "/comparison with AAVE, COMP, CEL\n" + \
+                    "/moonshot price projections based on marketcap"
+        context.bot.send_message(chat_id=update.message.chat_id, text=MENU_MSG)
 
 
     def handle_text_messages(self, update, context):
@@ -99,84 +106,113 @@ class MerchBot:
         or if the message includes a trigger word, replies with merch.
         """
         words = set(update.message.text.lower().split())
+        triggered = None
 #        logging.debug(f'Received message: {update.message.text}')
 #        logging.debug(f'Splitted words: {", ".join(words)}')
 
 
-        # Possibility: received command '/merch'
-        shouldTriggerPicture = False
-        for Trigger in self.merch_trigger:
+        # Possibility: received command from menu_trigger
+        for Trigger in self.menu_trigger:
             for word in words:
                 if word.startswith(Trigger):
-                    shouldTriggerPicture = True
-                    break
-
-        if shouldTriggerPicture:
-            self.sendPic(update, context)
+                    self.show_menu(update, context)
+                    return
 
 
-    def getMerch(self):
+        # Possibility: received command from cmd_trigger
+        for Trigger in self.cmd_trigger:
+            for word in words:
+                if word.startswith(Trigger):
+                    self.sendPic(Trigger, update, context)
+                    return
+
+
+
+
+
+    def update_or_not(self, pic_str):
         """
-        Sends either the stored merch or updates it if necessary.
-        Returns the image data to be sent.
+        Updates the pic if it hasn't been scraped already within last 2 minutes.
         """
 
         currentTime = int(time.time())
 
-        # Scrape max. once a minute from Coingecko
-        if currentTime - self.lastFetched > 120:
+        def update(pic_str):
 
-            self.currentMerch, self.lastFetched = updatePic()
+            if pic_str == 'YLD_Moon.jpg':
+                self.lastFetched[pic_str] = updateMoon()
 
-        return self.currentMerch
+            elif pic_str == 'YLD_Comp.png':
+                self.lastFetched[pic_str] = updateComparison()
+
+            else:
+                print(pic_str, 'not found. Nothing was updated.')
+
+
+        # Possibility: First demand for this pic. Update pic
+        if self.lastFetched[pic_str] == None:
+            update(pic_str)
+            return
+
+        # Possibility: First demand since 2 mins for this pic. Update pic
+        if currentTime - self.lastFetched[pic_str] > 120:
+            update(pic_str)
+
+
 
 
     # Send out whatever specified in images
-    def sendPic(self, update, context, caption=None):
+    def sendPic(self, cmd_str, update, context, caption=None):
         """
-        Sends the merch.
+        Sends picture specified in imageMap[cmd_str] to user.
+        Scrapes from web if not scraped within last 2 minutes.
         """
 
+        # Send preliminary message
         MSG = 'Preparing your merch... \nGetting fresh numbers...'
 #        MSG = "Bot is in maintenance mode right now, being fixed. " + \
 #        "Just in case, this is the newest merch (not updated since " + \
 #        "Mar 24 1:00 UTC)."
-
         context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
 
+        # For debugging only
 #        chat_user_client = update.message.from_user.username
 #        print(f'{chat_user_client} got no merch AAAAAH!')
 
-        self.getMerch()
+        # Look up the right image for the command
+        image = self.image_map[cmd_str]
 
-        images = [
-            #'YLDMastersOfDefi.JPG',
-            #'currentMerch.png',
-            #'YLD1.jpg',
-            #'YLD2.jpg',
-            #'YLD3.jpg',
-            #'YLD4.jpg',
-            'YLD_Moon.jpg'
-            ]
+        # Update pic if necessary (minimize scraping)
+        self.update_or_not(image)
 
-        for image in images:
-            with open(image, 'rb') as img:
+        # Send image specified for this command in self.image_map
+        with open(image, 'rb') as img:
 
-                # Sends the picture
-                context.bot.send_photo(
-                    chat_id=update.message.chat_id,
-                    photo=img,
-                    caption=caption
-                    )
-        # Log users that got merch from bot
+            # Sends the picture
+            context.bot.send_photo(
+                chat_id=update.message.chat_id,
+                photo=img,
+                caption=caption
+                )
+
+        # Send signature message after image
+        messages = set()
+        MSG = "Available /merch:\n" + \
+              "/comparison with AAVE, COMP, CEL\n" + \
+              "/moonshot price projections based on marketcap"
+        context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
+
+
+        # For debugging: Log users that got merch from bot
         chat_user_client = update.message.from_user.username
         if chat_user_client == None:
             chat_user_client = update.message.chat_id
 #        logging.info(f'{chat_user_client} got merch!')
         print(f'{chat_user_client} got merch!')
 
-        # Some protection against repeatedly calling the bot
+        # Some protection against repeatedly calling a bot function
         time.sleep(0.3)
+
 
 def main():
     """
