@@ -34,7 +34,13 @@ class MerchBot:
         # message, so different variations are not required if their
         # radix is present (e.g. "all" covers "/all" and "ball")
         self.menu_trigger = ['/all', '/merch']
-        self.cmd_trigger = ['/moonshot', '/comparison']
+        self.pic_trigger = ['/moonshot', '/comparison']
+        self.text_trigger = ['/links']
+
+        # Maps commands to bot messages (text files)
+        self.message_map = {
+            '/links': 'links.txt'
+            }
 
         # Maps commands to pictures
         self.image_map = {
@@ -49,7 +55,7 @@ class MerchBot:
 
         # Creates dict to store a timestamp for whenever a pic got updated
         self.lastFetched = {}
-        for cmd in self.cmd_trigger:
+        for cmd in self.pic_trigger:
             img = self.image_map[cmd]
             self.lastFetched[img] = None
 
@@ -92,12 +98,41 @@ class MerchBot:
 
     def show_menu(self, update, context):
         """
-        Sends the user a brief message explaining how to use the bot.
+        Shows the menu with current items.
         """
+
         MENU_MSG = "Current merch:\n\n" + \
                     "/comparison with AAVE, COMP, CEL\n" + \
-                    "/moonshot price projections based on marketcap"
+                    "/moonshot price projections based on marketcap\n" + \
+                    "/links useful YLD ecosystem links"
+
         context.bot.send_message(chat_id=update.message.chat_id, text=MENU_MSG)
+
+
+    def send_text(self, textfile, update, context):
+        """
+        Takes a textfile (path) and sends it as mesage to the user.
+        """
+
+        with open(textfile, 'r') as file:
+            MSG = file.read()
+
+        context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
+
+
+    def send_signature(self, update, context):
+
+        # Send signature message after each output
+        MSG = "Available /merch:\n" + \
+              "/comparison with AAVE, COMP, CEL\n" + \
+              "/moonshot price projections based on marketcap\n" + \
+              "/links useful YLD ecosystem links"
+
+        context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
+
+
+
+
 
 
     def handle_text_messages(self, update, context):
@@ -106,10 +141,14 @@ class MerchBot:
         or if the message includes a trigger word, replies with merch.
         """
         words = set(update.message.text.lower().split())
-        triggered = None
 #        logging.debug(f'Received message: {update.message.text}')
 #        logging.debug(f'Splitted words: {", ".join(words)}')
 
+        # For debugging: Log users that got merch from bot
+        chat_user_client = update.message.from_user.username
+        if chat_user_client == None:
+            chat_user_client = update.message.chat_id
+        #        logging.info(f'{chat_user_client} got merch!')
 
         # Possibility: received command from menu_trigger
         for Trigger in self.menu_trigger:
@@ -118,12 +157,23 @@ class MerchBot:
                     self.show_menu(update, context)
                     return
 
+        # Possibility: received command from text_trigger
+        for Trigger in self.text_trigger:
+            for word in words:
+                if word.startswith(Trigger):
+                    file = self.message_map[Trigger]
+                    self.send_text(file, update, context)
+                    self.send_signature(update, context)
+                    print(f'{chat_user_client} got links!')
+                    return
 
-        # Possibility: received command from cmd_trigger
-        for Trigger in self.cmd_trigger:
+        # Possibility: received command from pic_trigger
+        for Trigger in self.pic_trigger:
             for word in words:
                 if word.startswith(Trigger):
                     self.sendPic(Trigger, update, context)
+                    self.send_signature(update, context)
+                    print(f'{chat_user_client} got merch!')
                     return
 
 
@@ -195,23 +245,10 @@ class MerchBot:
                 caption=caption
                 )
 
-        # Send signature message after image
-        messages = set()
-        MSG = "Available /merch:\n" + \
-              "/comparison with AAVE, COMP, CEL\n" + \
-              "/moonshot price projections based on marketcap"
-        context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
-
-
-        # For debugging: Log users that got merch from bot
-        chat_user_client = update.message.from_user.username
-        if chat_user_client == None:
-            chat_user_client = update.message.chat_id
-#        logging.info(f'{chat_user_client} got merch!')
-        print(f'{chat_user_client} got merch!')
-
         # Some protection against repeatedly calling a bot function
         time.sleep(0.3)
+
+
 
 
 def main():

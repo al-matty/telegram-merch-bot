@@ -1,0 +1,26 @@
+📲App
+app.yield.credit
+
+⏱️Roadmap
+yield.credit/roadmap
+
+❔FAQ
+yield-credit.gitbook.io/docs/faq/frequently-asked-questions
+
+💻Website
+www.yield.credit
+
+🍣 Buy at SushiSwap
+app.sushi.com/pair/0xbbfd9b37ec6ea1ca612ab4adef6d8c6ece1a4134
+
+💰Staking Options:
+
+🌱Garden, earn YLD
+garden.yield.credit
+
+🍣 Onsen, earn Sushi
+app.sushi.com/pair/0xbbfd9b37ec6ea1ca612ab4adef6d8c6ece1a4134
+
+🌊ELE-YLD Only YLD needed, earn ELE
+eledash.blockpour.com/pools
+
