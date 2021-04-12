@@ -1,5 +1,4 @@
-run.sh
-runv2.sh
+*.sh
 *orig*.*
 *.pyc
 .ipynb_checkpoints/imageManTestArea-checkpoint.ipynb
