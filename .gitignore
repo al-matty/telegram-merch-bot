@@ -1,5 +1,7 @@
-*.sh
+run.sh
+runv2.sh
 *orig*.*
+*.pyc
 .ipynb_checkpoints/imageManTestArea-checkpoint.ipynb
 .DS_Store
 __pycache__/imageManipulation.cpython-36.pyc
