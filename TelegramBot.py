@@ -9,6 +9,7 @@ import random
 #import logging
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 from PIL import Image
+from urllib.error import HTTPError
 from imageManipulation import *
 
 
@@ -96,6 +97,8 @@ class MerchBot:
         self.updater.start_polling()
 
 
+
+
     def show_menu(self, update, context):
         """
         Shows the menu with current items.
@@ -121,13 +124,21 @@ class MerchBot:
         with open(textfile, 'r') as file:
             MSG = file.read()
 
-        context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text=MSG,
-            disable_web_page_preview=True,
-            parse_mode='MarkdownV2'
-            )
+        try:
+            context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text=MSG,
+                disable_web_page_preview=True,
+                parse_mode='MarkdownV2'
+                )
 
+        # Try sending again (infinitely) if HTTPError is raised
+        except HTTPError as e:
+                time.sleep(0.25)
+                print('='*30)
+                print(f'\nSuccessfully caught HTTPError:\n{e}\n')
+                print('='*30)
+                send_text(self, textfile, update, context)
 
     def send_signature(self, update, context):
 
@@ -138,10 +149,6 @@ class MerchBot:
               "/links useful YLD ecosystem links"
 
         context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
-
-
-
-
 
 
     def handle_text_messages(self, update, context):

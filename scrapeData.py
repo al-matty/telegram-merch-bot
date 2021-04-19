@@ -4,10 +4,29 @@
 Web Scraping Module for MerchBot
 """
 import urllib.request
+from urllib.error import HTTPError
 from bs4 import BeautifulSoup
 import time
 import random
 
+
+def safe_request(req):
+    """
+    Wrapper to handle HTTPErrors when scraping data.
+    Will send equests again infinitely instead of raising an error.
+    """
+    try:
+        html = urllib.request.urlopen(req)
+
+    # Try sending again (infinitely) if HTTPError is raised
+    except HTTPError as e:
+            time.sleep(0.5)
+            print('='*30)
+            print(f'\nCaught HTTPError:\n{e}\n')
+            print('='*30)
+            safe_request(req)
+
+    return html
 
 def scrape(dict_, dictKey):
     """
@@ -23,7 +42,8 @@ def scrape(dict_, dictKey):
 
     url = commonUrl + dictKey
     req = urllib.request.Request(url, headers= {'User-Agent' : userAgent})
-    html = urllib.request.urlopen(req)
+#    html = urllib.request.urlopen(req)
+    html = safe_request(req)
 
     # parse data
     bs = BeautifulSoup(html.read(), 'html.parser')
@@ -64,7 +84,8 @@ def scrape_price_mc(dict_, dictKey):
 
     url = commonUrl + dictKey
     req = urllib.request.Request(url, headers= {'User-Agent' : userAgent})
-    html = urllib.request.urlopen(req)
+#    html = urllib.request.urlopen(req)
+    html = safe_request(req)
 
     # parse data
     bs = BeautifulSoup(html.read(), 'html.parser')
@@ -85,7 +106,7 @@ def scrape_price_mc(dict_, dictKey):
 
     return metrics
 
-def getMetrics():
+def get_comp_metrics():
 
     # Dict to determine which tokens to scrape information for, as well
     # as for the positioning in the image

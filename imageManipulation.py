@@ -6,7 +6,7 @@ Image Manipulation Module for MerchBot
 import time
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
-from scrapeDatav2 import get_comp_metrics, get_moon_metrics
+from scrapeData import get_comp_metrics, get_moon_metrics
 from math import floor
 
 
