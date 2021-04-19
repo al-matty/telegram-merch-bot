@@ -101,12 +101,16 @@ class MerchBot:
         Shows the menu with current items.
         """
 
-        MENU_MSG = "Current merch:\n\n" + \
+        MENU_MSG = "*Current Merch*\n\n" + \
                     "/comparison with AAVE, COMP, CEL\n" + \
                     "/moonshot price projections based on marketcap\n" + \
                     "/links useful YLD ecosystem links"
 
-        context.bot.send_message(chat_id=update.message.chat_id, text=MENU_MSG)
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=MENU_MSG,
+            parse_mode='MarkdownV2'
+            )
 
 
     def send_text(self, textfile, update, context):
@@ -117,7 +121,12 @@ class MerchBot:
         with open(textfile, 'r') as file:
             MSG = file.read()
 
-        context.bot.send_message(chat_id=update.message.chat_id, text=MSG)
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=MSG,
+            disable_web_page_preview=True,
+            parse_mode='MarkdownV2'
+            )
 
 
     def send_signature(self, update, context):
