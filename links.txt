@@ -1,6 +1,6 @@
 *Useful YLD Ecosystem Links*
 
-🍣 [Buy at SushiSwap](app.sushi.com/pair/0xbbfd9b37ec6ea1ca612ab4adef6d8c6ece1a4134)
+🍣 [Buy at SushiSwap](https://app.sushi.com/swap?outputCurrency=0xdcb01cc464238396e213a6fdd933e36796eaff9f)
 📲 [App](app.yield.credit)
 💻 [Website](www.yield.credit)
 ⏱️ [Roadmap](yield.credit/#roadmap)
